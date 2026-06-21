@@ -1,9 +1,11 @@
 import os
 import shutil
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import HTMLResponse, FileResponse
 
 from core.parser import get_raw_resume_text
 from core.generator import generate_portfolio_data
+from core.renderer import render_portfolio_html
 
 app = FastAPI(
     title="Resume to Portfolio Agent API",
@@ -17,13 +19,13 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.get("/")
 def read_root():
-    return {
-        "status": "online",
-        "message": "Resume Portfolio Agent API is running perfectly."
-    }
+    """
+    Serves the landing page.
+    """
+    return FileResponse("templates/index.html")
 
 
-@app.post("/api/upload")
+@app.post("/api/upload", response_class=HTMLResponse)
 async def upload_resume(file: UploadFile = File(...)):
     filename = file.filename.lower()
 
@@ -45,7 +47,10 @@ async def upload_resume(file: UploadFile = File(...)):
         print("[WEB] Triggering Gemini Narrative Pipeline...")
         structured_portfolio = generate_portfolio_data(raw_text)
 
-        return structured_portfolio
+        print("[WEB] Rendering HTML Portfolio Page...")
+        html_content = render_portfolio_html(structured_portfolio)
+
+        return HTMLResponse(content=html_content, status_code=200)
 
     except Exception as e:
         print(f"[WEB ERROR] {e}")
