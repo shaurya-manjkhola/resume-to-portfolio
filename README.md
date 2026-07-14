@@ -13,7 +13,7 @@ a reformatted copy of it.
    without inventing facts that aren't in the resume.
 3. **Render** — `core/renderer.py` turns the structured profile into a full
    responsive HTML page, styled according to the theme you picked
-   (`indigo`, `minimalist`, or `midnight`).
+   (`aurora`, `terminal`, `sunset`, or `studio`).
 
 ## Setup
 
@@ -66,7 +66,7 @@ samples/                 Sample resume for local testing
 
 ## Notes
 
-- Themes: **Corporate Indigo**, **Serif Minimalist**, **Midnight Hacker** (dark/mono).
+- Themes: **Aurora** (dark, gradient), **Terminal** (dark, monospace), **Sunset** (light, warm/editorial), **Studio** (light, muted/serif).
 - If a resume has no education section, education is simply omitted from the
   generated site rather than shown empty.
 - Generation runs Gemini with a fallback chain (`gemini-2.5-flash` →

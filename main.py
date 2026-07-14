@@ -29,7 +29,7 @@ def read_root():
 @app.post("/api/upload", response_class=HTMLResponse)
 async def upload_resume(
     file: UploadFile = File(...),
-    theme: str = Form("indigo")  # Captures the user's explicit theme framework selection click
+    theme: str = Form("aurora")  # Captures the user's explicit theme framework selection click
 ):
     """
     Accepts a resume file and theme metadata selection, processes it through 

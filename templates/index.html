@@ -48,8 +48,9 @@
   .head p{font-size:14.5px;color:var(--ink-soft);margin:0}
 
   /* ---- Theme picker: live mini previews mirror the actual rendered output ---- */
-  .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media(max-width:700px){.theme-grid{grid-template-columns:1fr}}
+  .theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:860px){.theme-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.theme-grid{grid-template-columns:1fr}}
   .theme-card{cursor:pointer;border-radius:var(--r-lg);border:1.5px solid var(--line);background:var(--surface);padding:10px;transition:border-color .15s,box-shadow .15s,transform .15s;text-align:left}
   .theme-card:hover{transform:translateY(-2px)}
   .theme-card.active{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-tint)}
@@ -62,23 +63,29 @@
   .mini-badges{display:flex;gap:4px;margin-top:8px}
   .mini-badges span{height:9px;width:22px;border-radius:5px}
 
-  .m-indigo .mini-bar{background:#EEF0FF;color:#6366F1}
-  .m-indigo .mini-body{background:#fff}
-  .m-indigo .mini-name{background:#1E1B3A}
-  .m-indigo .mini-line{background:#94a3b8}
-  .m-indigo .mini-badges span{background:#EEF0FF;border:1px solid #C7CBFA}
+  .m-aurora .mini-bar{background:#171C33;color:#8B7CF6}
+  .m-aurora .mini-body{background:#0B0E1A}
+  .m-aurora .mini-name{background:linear-gradient(100deg,#8B7CF6,#34D8B0)}
+  .m-aurora .mini-line{background:#6E6B96}
+  .m-aurora .mini-badges span{background:#171C33;border:1px solid #242A48}
 
-  .m-minimalist .mini-bar{background:#F5F3EE;color:#78716c}
-  .m-minimalist .mini-body{background:#FDFCFA}
-  .m-minimalist .mini-name{background:#292524;border-radius:0}
-  .m-minimalist .mini-line{background:#a8a29e;border-radius:0}
-  .m-minimalist .mini-badges span{background:#E7E5E4;border-radius:0}
+  .m-terminal .mini-bar{background:#121212;color:#D6FF3F}
+  .m-terminal .mini-body{background:#0A0A0A}
+  .m-terminal .mini-name{background:#D6FF3F;border-radius:2px}
+  .m-terminal .mini-line{background:#5C5C58;border-radius:2px}
+  .m-terminal .mini-badges span{background:#121212;border:1px solid #2A2A28;border-radius:2px}
 
-  .m-midnight .mini-bar{background:#09090b;color:#34d399}
-  .m-midnight .mini-body{background:#18181b}
-  .m-midnight .mini-name{background:#34d399}
-  .m-midnight .mini-line{background:#52525b}
-  .m-midnight .mini-badges span{background:#27272a;border:1px solid #10b981}
+  .m-sunset .mini-bar{background:#FFF7F2;color:#E1573C}
+  .m-sunset .mini-body{background:#FFFFFF}
+  .m-sunset .mini-name{background:#2B2320}
+  .m-sunset .mini-line{background:#B5A89F}
+  .m-sunset .mini-badges span{background:#FFF7F2;border:1px solid #F0DED2;border-radius:100px}
+
+  .m-studio .mini-bar{background:#FAFAF8;color:#9C6B3F}
+  .m-studio .mini-body{background:#FFFFFF}
+  .m-studio .mini-name{background:#201F1C;border-radius:1px}
+  .m-studio .mini-line{background:#A6A399;border-radius:1px}
+  .m-studio .mini-badges span{background:#FAFAF8;border:1px solid #E4E1DA;border-radius:1px}
 
   .theme-label{display:flex;align-items:center;justify-content:space-between;padding:2px 4px}
   .theme-label b{font-family:var(--disp);font-size:13.5px;font-weight:600}
@@ -137,10 +144,10 @@
       <p>Every theme renders your actual content — this is what your site will look like.</p>
     </div>
     <form action="/api/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
-      <input type="hidden" name="theme" id="selectedTheme" value="indigo">
+      <input type="hidden" name="theme" id="selectedTheme" value="aurora">
       <div class="theme-grid">
 
-        <div class="theme-card active m-indigo" onclick="selectTheme('indigo', this)">
+        <div class="theme-card active m-aurora" onclick="selectTheme('aurora', this)">
           <div class="mini">
             <div class="mini-bar"><span></span><span></span><span></span></div>
             <div class="mini-body">
@@ -150,11 +157,11 @@
               <div class="mini-badges"><span></span><span></span><span></span></div>
             </div>
           </div>
-          <div class="theme-label"><b>Corporate Indigo</b><span class="check"></span></div>
-          <div class="theme-desc">Clean, confident, built for recruiters.</div>
+          <div class="theme-label"><b>Aurora</b><span class="check"></span></div>
+          <div class="theme-desc">Dark, gradient, built to impress.</div>
         </div>
 
-        <div class="theme-card m-minimalist" onclick="selectTheme('minimalist', this)">
+        <div class="theme-card m-terminal" onclick="selectTheme('terminal', this)">
           <div class="mini">
             <div class="mini-bar"><span></span><span></span><span></span></div>
             <div class="mini-body">
@@ -164,11 +171,11 @@
               <div class="mini-badges"><span></span><span></span><span></span></div>
             </div>
           </div>
-          <div class="theme-label"><b>Serif Minimalist</b><span class="check"></span></div>
-          <div class="theme-desc">Quiet, editorial, typography-first.</div>
+          <div class="theme-label"><b>Terminal</b><span class="check"></span></div>
+          <div class="theme-desc">Dark, monospace, dev-first.</div>
         </div>
 
-        <div class="theme-card m-midnight" onclick="selectTheme('midnight', this)">
+        <div class="theme-card m-sunset" onclick="selectTheme('sunset', this)">
           <div class="mini">
             <div class="mini-bar"><span></span><span></span><span></span></div>
             <div class="mini-body">
@@ -178,8 +185,22 @@
               <div class="mini-badges"><span></span><span></span><span></span></div>
             </div>
           </div>
-          <div class="theme-label"><b>Midnight Hacker</b><span class="check"></span></div>
-          <div class="theme-desc">Dark, monospace, built to demo.</div>
+          <div class="theme-label"><b>Sunset</b><span class="check"></span></div>
+          <div class="theme-desc">Light, warm, editorial.</div>
+        </div>
+
+        <div class="theme-card m-studio" onclick="selectTheme('studio', this)">
+          <div class="mini">
+            <div class="mini-bar"><span></span><span></span><span></span></div>
+            <div class="mini-body">
+              <div class="mini-name"></div>
+              <div class="mini-line" style="width:85%"></div>
+              <div class="mini-line" style="width:60%"></div>
+              <div class="mini-badges"><span></span><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="theme-label"><b>Studio</b><span class="check"></span></div>
+          <div class="theme-desc">Light, muted, serif-led.</div>
         </div>
 
       </div>

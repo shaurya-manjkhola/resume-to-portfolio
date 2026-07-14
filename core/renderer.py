@@ -1,174 +1,345 @@
 from core.schema import PortfolioProfile
 
-def render_portfolio_html(profile: PortfolioProfile, theme: str = "indigo") -> str:
-    """
-    Accepts a profile and compiles a responsive portfolio website.
-    Supports themes: 'indigo' (corporate), 'minimalist' (light), and 'midnight' (dark mode hacker).
-    """
-    
-    # Define our style matrix rules mapping to Tailwind utility classes
-    themes = {
-        "indigo": {
-            "body": "bg-gray-50 text-gray-900",
-            "card": "bg-white border-gray-100 shadow-sm",
-            "accent_text": "text-indigo-600",
-            "accent_bg": "bg-indigo-600 hover:bg-indigo-700 text-white",
-            "badge": "bg-indigo-50 text-indigo-700",
-            "timeline_border": "border-indigo-500"
-        },
-        "minimalist": {
-            "body": "bg-white text-stone-800 font-serif",
-            "card": "bg-stone-50 border-stone-200 shadow-none",
-            "accent_text": "text-stone-900 underline decoration-stone-400 decoration-2",
-            "accent_bg": "bg-stone-900 hover:bg-stone-800 text-white",
-            "badge": "bg-stone-200 text-stone-800 rounded-none",
-            "timeline_border": "border-stone-800"
-        },
-        "midnight": {
-            "body": "bg-zinc-950 text-zinc-100 font-mono",
-            "card": "bg-zinc-900 border-zinc-800 shadow-xl",
-            "accent_text": "text-emerald-400",
-            "accent_bg": "bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold",
-            "badge": "bg-zinc-800 text-emerald-400 border border-emerald-950",
-            "timeline_border": "border-emerald-500"
-        }
-    }
-    
-    style = themes.get(theme, themes["indigo"])
 
-    # Build repeating project components dynamically
+THEMES = {
+    # ---------- DARK 1: gradient hero + side facts card (inspired by dark analytics-style portfolios) ----------
+    "aurora": {
+        "label": "Aurora",
+        "mode": "dark",
+        "google_fonts": "family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600",
+        "font_disp": "'Space Grotesk','Inter',sans-serif",
+        "font_body": "'Inter',sans-serif",
+        "bg": "#0B0E1A", "surface": "#121628", "surface2": "#171C33",
+        "ink": "#F3F2FF", "ink_soft": "#B4B1DA", "ink_faint": "#6E6B96",
+        "line": "#242A48",
+        "accent": "#8B7CF6", "accent2": "#34D8B0",
+        "radius": "16px",
+        "split_hero": True, "numbered": False, "gradient_text": True, "avatar": False,
+    },
+    # ---------- DARK 2: monospace, numbered sections, lime accent (inspired by brutalist dev portfolios) ----------
+    "terminal": {
+        "label": "Terminal",
+        "mode": "dark",
+        "google_fonts": "family=JetBrains+Mono:wght@400;500;700",
+        "font_disp": "'JetBrains Mono',monospace",
+        "font_body": "'JetBrains Mono',monospace",
+        "bg": "#0A0A0A", "surface": "#121212", "surface2": "#171717",
+        "ink": "#F2F2F0", "ink_soft": "#9A9A96", "ink_faint": "#5C5C58",
+        "line": "#2A2A28",
+        "accent": "#D6FF3F", "accent2": "#7DFFE0",
+        "radius": "6px",
+        "split_hero": False, "numbered": True, "gradient_text": False, "avatar": False,
+    },
+    # ---------- LIGHT 1: warm, editorial, coral accent (inspired by warm creative portfolios) ----------
+    "sunset": {
+        "label": "Sunset",
+        "mode": "light",
+        "google_fonts": "family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600",
+        "font_disp": "'Poppins','Inter',sans-serif",
+        "font_body": "'Inter',sans-serif",
+        "bg": "#FBF3EE", "surface": "#FFFFFF", "surface2": "#FFF7F2",
+        "ink": "#2B2320", "ink_soft": "#7A6E67", "ink_faint": "#B5A89F",
+        "line": "#F0DED2",
+        "accent": "#E1573C", "accent2": "#F2A65A",
+        "radius": "18px",
+        "split_hero": False, "numbered": False, "gradient_text": False, "avatar": True,
+    },
+    # ---------- LIGHT 2: muted, graphite, minimal serif (inspired by studio/agency portfolios) ----------
+    "studio": {
+        "label": "Studio",
+        "mode": "light",
+        "google_fonts": "family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600",
+        "font_disp": "'Fraunces','Inter',serif",
+        "font_body": "'Inter',sans-serif",
+        "bg": "#F3F2EF", "surface": "#FFFFFF", "surface2": "#FAFAF8",
+        "ink": "#201F1C", "ink_soft": "#69675F", "ink_faint": "#A6A399",
+        "line": "#E4E1DA",
+        "accent": "#9C6B3F", "accent2": "#5F6B5A",
+        "radius": "4px",
+        "split_hero": False, "numbered": False, "gradient_text": False, "avatar": True,
+    },
+}
+
+
+def _initials(name: str) -> str:
+    parts = [p for p in name.strip().split() if p]
+    if not parts:
+        return "?"
+    if len(parts) == 1:
+        return parts[0][0].upper()
+    return (parts[0][0] + parts[-1][0]).upper()
+
+
+def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> str:
+    """
+    Accepts a profile and compiles a complete, responsive portfolio website.
+    Supports 4 visually distinct themes: 'aurora' and 'terminal' (dark),
+    'sunset' and 'studio' (light).
+    """
+    t = THEMES.get(theme, THEMES["aurora"])
+
+    def esc(s):
+        return s if s else ""
+
+    # ---- Skill badges ----
+    skills_html = "".join(f'<span class="badge">{s}</span>' for s in profile.skills)
+
+    # ---- Projects ----
+    accent_cycle = [t["accent"], t["accent2"]]
     project_blocks = ""
-    for proj in profile.projects:
-        tech_badges = "".join([f"<span class='text-xs font-semibold px-2.5 py-0.5 rounded-full {style['badge']}'>{tech}</span>" for tech in proj.tech_stack])
-        github_link = f"<a href='{proj.github_url}' target='_blank' class='text-sm {style['accent_text']} hover:opacity-80 mt-4 inline-block font-medium'>Source Repository →</a>" if proj.github_url else ""
+    for i, proj in enumerate(profile.projects):
+        stripe = accent_cycle[i % 2]
+        tech_badges = "".join(f'<span class="badge sm">{tech}</span>' for tech in proj.tech_stack)
+        github_link = (
+            f'<a href="{proj.github_url}" target="_blank" class="proj-link">Source →</a>'
+            if proj.github_url else ""
+        )
+        label = f'<span class="proj-num">{i + 1:02d}</span>' if t["numbered"] else ""
         project_blocks += f"""
-        <div class="rounded-xl p-6 border flex flex-col justify-between transition-all {style['card']}">
-            <div>
-                <h3 class="text-lg font-bold mb-2">{proj.title}</h3>
-                <p class="opacity-70 text-sm mb-4 leading-relaxed font-sans">{proj.description}</p>
-            </div>
-            <div>
-                <div class="flex flex-wrap gap-1.5 mb-2">{tech_badges}</div>
+        <div class="card proj-card" style="--stripe:{stripe}">
+            <div class="proj-head">{label}<h3>{proj.title}</h3></div>
+            <p class="proj-desc">{proj.description}</p>
+            <div class="proj-foot">
+                <div class="badge-row">{tech_badges}</div>
                 {github_link}
             </div>
         </div>
         """
 
-    # Build repeating timeline components dynamically
+    # ---- Experience timeline ----
     experience_blocks = ""
     for exp in profile.experience:
-        highlights_list = "".join([f"<li class='opacity-70 mb-1.5 font-sans text-sm'>• {h}</li>" for h in exp.highlights])
+        highlights = "".join(f"<li>{h}</li>" for h in exp.highlights)
         experience_blocks += f"""
-        <div class="mb-8 border-l-2 pl-4 {style['timeline_border']}">
-            <div class="flex flex-wrap justify-between items-baseline mb-1">
-                <h3 class="text-xl font-bold">{exp.position}</h3>
-                <span class="text-xs opacity-60 font-medium">{exp.duration}</span>
+        <div class="timeline-item">
+            <div class="timeline-row">
+                <h3>{exp.position}</h3>
+                <span class="meta">{exp.duration}</span>
             </div>
-            <p class="text-sm font-medium mb-3 opacity-80">{exp.company} — <span class="italic text-xs">{exp.location}</span></p>
-            <ul class="space-y-1">{highlights_list}</ul>
+            <p class="sub">{exp.company} · {exp.location}</p>
+            <ul class="highlights">{highlights}</ul>
         </div>
         """
 
-    # Build repeating education components dynamically
+    # ---- Education timeline ----
     education_blocks = ""
     for edu in profile.education:
-        details_html = f"<p class='opacity-60 text-xs mt-1 font-sans italic'>{edu.details}</p>" if edu.details else ""
+        details = f'<p class="edu-detail">{edu.details}</p>' if edu.details else ""
         education_blocks += f"""
-        <div class="mb-6 border-l-2 pl-4 {style['timeline_border']}">
-            <div class="flex flex-wrap justify-between items-baseline mb-1">
-                <h3 class="text-lg font-bold">{edu.degree}</h3>
-                <span class="text-xs opacity-60 font-medium">{edu.duration}</span>
+        <div class="timeline-item">
+            <div class="timeline-row">
+                <h3>{edu.degree}</h3>
+                <span class="meta">{edu.duration}</span>
             </div>
-            <p class="text-sm font-medium opacity-80">{edu.institution}</p>
-            {details_html}
+            <p class="sub">{edu.institution}</p>
+            {details}
         </div>
         """
 
-    skills_badges = "".join([f"<span class='text-xs font-medium px-3 py-1 rounded-full {style['badge']}'>{skill}</span>" for skill in profile.skills])
-    linkedin_html = f"<a href='{profile.linkedin}' target='_blank' class='opacity-60 hover:opacity-100 font-medium transition'>LinkedIn</a>" if profile.linkedin else ""
-    github_html = f"<a href='{profile.github}' target='_blank' class='opacity-60 hover:opacity-100 font-medium transition'>GitHub</a>" if profile.github else ""
+    linkedin_html = f'<a href="{profile.linkedin}" target="_blank" class="link">LinkedIn</a>' if profile.linkedin else ""
+    github_html = f'<a href="{profile.github}" target="_blank" class="link">GitHub</a>' if profile.github else ""
 
-    # Build the full page template, embedding our Live Exporter HUD bar at the top
-    html_template = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{profile.name} | Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="antialiased min-h-screen {style['body']}">
-    
-    <div id="exportHUD" class="bg-zinc-900 text-white px-6 py-3 flex items-center justify-between font-sans sticky top-0 z-50 border-b border-zinc-800">
-        <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <p class="text-xs text-zinc-300">Live Preview Mode — Active Theme: <span class="uppercase font-bold text-white">{theme}</span></p>
-        </div>
-        <div class="flex items-center gap-3">
-            <button onclick="window.print()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-lg transition font-medium">Print PDF</button>
-            <button onclick="exportSourceFile()" class="text-xs bg-emerald-500 hover:bg-emerald-600 text-zinc-950 px-4 py-1.5 rounded-lg font-bold transition">Download Deployable Site Code</button>
-        </div>
-    </div>
+    # ---- Section eyebrow helper (numbered vs plain) ----
+    def eyebrow(idx, text):
+        if t["numbered"]:
+            return f'<div class="eyebrow"><span class="idx">{idx:02d}</span> — {text.upper()}</div>'
+        return f'<div class="eyebrow">{text.upper()}</div>'
 
-    <div class="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <header class="mb-12 text-center md:text-left md:flex md:items-center md:justify-between border-b border-zinc-200/20 pb-8">
-            <div>
-                <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">{profile.name}</h1>
-                <p class="mt-3 text-xl font-medium {style['accent_text']}">{profile.headline}</p>
+    # ---- Hero ----
+    name_html = (
+        f'<span class="grad">{profile.name}</span>' if t["gradient_text"] else profile.name
+    )
+    avatar_html = (
+        f'<div class="avatar">{_initials(profile.name)}</div>' if t["avatar"] else ""
+    )
+
+    if t["split_hero"]:
+        top_skills = " · ".join(profile.skills[:3]) if profile.skills else ""
+        first_edu = profile.education[0] if profile.education else None
+        hero_html = f"""
+        <section class="hero split">
+            <div class="hero-main">
+                {eyebrow(0, "Portfolio")}
+                <h1>{name_html}</h1>
+                <p class="headline">{profile.headline}</p>
+                <p class="bio">{profile.bio}</p>
+                <div class="cta-row">
+                    <a href="mailto:{profile.email}" class="btn-primary">Contact me</a>
+                    {linkedin_html}
+                    {github_html}
+                </div>
             </div>
-            <div class="mt-6 md:mt-0 flex flex-wrap gap-4 justify-center md:justify-end text-sm items-center">
-                <a href="mailto:{profile.email}" class="px-4 py-2 rounded-lg font-medium shadow-sm transition {style['accent_bg']}">Contact Me</a>
+            <div class="facts-card">
+                {f'<div class="fact"><span class="fact-label">Degree</span><span class="fact-value">{first_edu.degree}</span></div>' if first_edu else ""}
+                {f'<div class="fact"><span class="fact-label">Institution</span><span class="fact-value">{first_edu.institution}</span></div>' if first_edu else ""}
+                <div class="fact"><span class="fact-label">Projects</span><span class="fact-value">{len(profile.projects)}</span></div>
+                <div class="fact"><span class="fact-label">Focus</span><span class="fact-value">{top_skills}</span></div>
+            </div>
+        </section>
+        """
+    else:
+        hero_html = f"""
+        <section class="hero">
+            {avatar_html}
+            {eyebrow(0, "Portfolio")}
+            <h1>{name_html}</h1>
+            <p class="headline">{profile.headline}</p>
+            <p class="bio">{profile.bio}</p>
+            <div class="cta-row">
+                <a href="mailto:{profile.email}" class="btn-primary">Contact me</a>
                 {linkedin_html}
                 {github_html}
             </div>
-        </header>
-
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-4 tracking-tight">About Me</h2>
-            <p class="text-lg leading-relaxed opacity-80 font-sans">{profile.bio}</p>
         </section>
+        """
 
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-4 tracking-tight">Technical Skills</h2>
-            <div class="flex flex-wrap gap-2">{skills_badges}</div>
-        </section>
+    education_section = f"""
+    <section class="block">
+        {eyebrow(4, "Education")}
+        <h2>Education</h2>
+        <div class="timeline">{education_blocks}</div>
+    </section>
+    """ if profile.education else ""
 
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 tracking-tight">Featured Production Work</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">{project_blocks}</div>
-        </section>
+    html_template = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{profile.name} | Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?{t['google_fonts']}&display=swap" rel="stylesheet">
+<style>
+  :root{{
+    --bg:{t['bg']}; --surface:{t['surface']}; --surface2:{t['surface2']};
+    --ink:{t['ink']}; --ink-soft:{t['ink_soft']}; --ink-faint:{t['ink_faint']};
+    --line:{t['line']}; --accent:{t['accent']}; --accent2:{t['accent2']};
+    --radius:{t['radius']};
+    --font-disp:{t['font_disp']}; --font-body:{t['font_body']};
+  }}
+  *{{box-sizing:border-box}}
+  body{{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.6}}
+  h1,h2,h3{{font-family:var(--font-disp);letter-spacing:-.02em;margin:0}}
+  a{{color:inherit}}
+  .wrap{{max-width:880px;margin:0 auto;padding:0 24px}}
 
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 tracking-tight">Professional Timeline</h2>
-            <div class="space-y-4">{experience_blocks}</div>
-        </section>
+  #exportHUD{{position:sticky;top:0;z-index:50;background:var(--surface2);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:12px 24px;font-family:var(--font-body)}}
+  #exportHUD .status{{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft)}}
+  #exportHUD .dot{{width:7px;height:7px;border-radius:50%;background:var(--accent)}}
+  #exportHUD button{{font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;margin-left:8px;font-family:var(--font-body)}}
+  #exportHUD button.primary{{background:var(--accent);color:{"#0A0A0A" if t['mode']=='dark' else '#FFFFFF'};border:none}}
 
-        {f'''<section class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 tracking-tight">Education</h2>
-            <div class="space-y-4">{education_blocks}</div>
-        </section>''' if profile.education else ''}
+  .eyebrow{{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}}
+  .eyebrow .idx{{color:var(--ink-faint);margin-right:4px}}
+
+  .hero{{padding:64px 0 40px}}
+  .hero h1{{font-size:42px;font-weight:700;margin-bottom:10px}}
+  .hero .grad{{background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}}
+  .headline{{font-size:18px;color:var(--ink-soft);font-weight:500;margin:0 0 16px}}
+  .bio{{font-size:15px;color:var(--ink-soft);max-width:560px;margin:0 0 24px}}
+  .cta-row{{display:flex;gap:18px;align-items:center;flex-wrap:wrap}}
+  .btn-primary{{background:var(--accent);color:{"#0A0A0A" if t['mode']=='dark' else '#FFFFFF'};font-weight:600;
+    padding:12px 22px;border-radius:calc(var(--radius) - 4px);text-decoration:none;font-size:14px}}
+  .link{{font-size:14px;font-weight:500;color:var(--ink-soft);text-decoration:none}}
+  .link:hover{{color:var(--accent)}}
+  .avatar{{width:56px;height:56px;border-radius:50%;background:var(--accent);color:{"#0A0A0A" if t['mode']=='dark' else '#FFFFFF'};
+    display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-weight:600;font-size:18px;margin-bottom:18px}}
+
+  .hero.split{{display:grid;grid-template-columns:1.5fr 1fr;gap:32px;align-items:start}}
+  @media(max-width:720px){{.hero.split{{grid-template-columns:1fr}}}}
+  .facts-card{{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:10px}}
+  .fact{{display:flex;flex-direction:column;gap:2px;padding:12px 0;border-bottom:1px solid var(--line)}}
+  .fact:last-child{{border-bottom:none;padding-bottom:0}}
+  .fact-label{{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint)}}
+  .fact-value{{font-size:14px;font-weight:600}}
+
+  .block{{padding:36px 0}}
+  .block h2{{font-size:24px;font-weight:700;margin-bottom:18px}}
+
+  .badge-row{{display:flex;flex-wrap:wrap;gap:8px}}
+  .badge{{font-size:12px;font-weight:500;padding:6px 13px;border-radius:100px;background:var(--surface2);
+    border:1px solid var(--line);color:var(--ink-soft)}}
+  .badge.sm{{padding:3px 9px;font-size:11px}}
+
+  .grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px}}
+  @media(max-width:640px){{.grid{{grid-template-columns:1fr}}}}
+  .card{{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+    transition:transform .15s,border-color .15s}}
+  .card:hover{{transform:translateY(-2px);border-color:var(--accent)}}
+  .proj-card{{border-top:3px solid var(--stripe);display:flex;flex-direction:column;justify-content:space-between}}
+  .proj-head{{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}}
+  .proj-num{{font-size:12px;color:var(--ink-faint);font-weight:600}}
+  .proj-head h3{{font-size:17px;font-weight:600}}
+  .proj-desc{{font-size:13.5px;color:var(--ink-soft);margin-bottom:16px}}
+  .proj-foot{{display:flex;flex-direction:column;gap:10px}}
+  .proj-link{{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none}}
+
+  .timeline{{display:flex;flex-direction:column;gap:26px}}
+  .timeline-item{{border-left:2px solid var(--accent);padding-left:18px}}
+  .timeline-row{{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}}
+  .timeline-row h3{{font-size:17px;font-weight:600}}
+  .meta{{font-size:12px;color:var(--ink-faint);font-weight:500;white-space:nowrap}}
+  .sub{{font-size:13.5px;color:var(--ink-soft);margin:4px 0 10px}}
+  .highlights{{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-soft)}}
+  .highlights li{{margin-bottom:5px}}
+  .edu-detail{{font-size:12.5px;color:var(--ink-faint);font-style:italic;margin:4px 0 0}}
+
+  footer{{padding:40px 0 60px;font-size:12px;color:var(--ink-faint);border-top:1px solid var(--line);margin-top:20px;text-align:center}}
+</style>
+</head>
+<body>
+
+<div id="exportHUD">
+    <div class="status"><span class="dot"></span>Live preview · {t['label']} theme</div>
+    <div>
+        <button onclick="window.print()">Print PDF</button>
+        <button class="primary" onclick="exportSourceFile()">Download site</button>
     </div>
+</div>
 
-    <script>
-        function exportSourceFile() {{
-            // Remove the HUD container before generating code so the output is 100% pure static code files
-            const hud = document.getElementById("exportHUD");
-            if (hud) hud.remove();
-            
-            const rawHtml = document.documentElement.outerHTML;
-            const blob = new Blob([rawHtml], {{ type: "text/html" }});
-            const link = document.createElement("a");
-            
-            link.href = URL.createObjectURL(blob);
-            link.download = "index.html";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Bring the HUD back into the visual preview after execution finishes
-            document.body.insertBefore(hud, document.body.firstChild);
-        }}
-    </script>
+<div class="wrap">
+    {hero_html}
+
+    <section class="block">
+        {eyebrow(1, "Skills")}
+        <h2>Technical skills</h2>
+        <div class="badge-row">{skills_html}</div>
+    </section>
+
+    <section class="block">
+        {eyebrow(2, "Selected work")}
+        <h2>Projects</h2>
+        <div class="grid">{project_blocks}</div>
+    </section>
+
+    <section class="block">
+        {eyebrow(3, "Experience")}
+        <h2>Where I've worked</h2>
+        <div class="timeline">{experience_blocks}</div>
+    </section>
+
+    {education_section}
+
+    <footer>Generated portfolio · {profile.name}</footer>
+</div>
+
+<script>
+    function exportSourceFile() {{
+        const hud = document.getElementById("exportHUD");
+        if (hud) hud.remove();
+        const rawHtml = document.documentElement.outerHTML;
+        const blob = new Blob([rawHtml], {{ type: "text/html" }});
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "index.html";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        document.body.insertBefore(hud, document.body.firstChild);
+    }}
+</script>
 </body>
 </html>
 """
