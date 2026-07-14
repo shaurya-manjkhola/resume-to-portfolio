@@ -34,6 +34,19 @@ class ProjectItem(BaseModel):
     )
 
 
+class EducationItem(BaseModel):
+    """
+    Schema for a single education entry.
+    """
+    institution: str = Field(..., description="The name of the school, college, or university")
+    degree: str = Field(..., description="The degree or program, e.g., 'B.S. in Computer Science'")
+    duration: str = Field(..., description="The time frame of study, e.g., 'Aug 2022 - May 2026'")
+    details: Optional[str] = Field(
+        None,
+        description="Optional extra detail such as GPA, honors, or relevant coursework, only if present in the resume"
+    )
+
+
 class PortfolioProfile(BaseModel):
     """
     The master schema containing the fully parsed and enhanced portfolio dataset.
@@ -56,6 +69,11 @@ class PortfolioProfile(BaseModel):
     projects: List[ProjectItem] = Field(
         ...,
         description="Technical project entries"
+    )
+
+    education: List[EducationItem] = Field(
+        default_factory=list,
+        description="Education entries such as degrees, schools, and graduation dates"
     )
 
     skills: List[str] = Field(

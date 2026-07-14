@@ -69,6 +69,21 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "indigo") -> s
         </div>
         """
 
+    # Build repeating education components dynamically
+    education_blocks = ""
+    for edu in profile.education:
+        details_html = f"<p class='opacity-60 text-xs mt-1 font-sans italic'>{edu.details}</p>" if edu.details else ""
+        education_blocks += f"""
+        <div class="mb-6 border-l-2 pl-4 {style['timeline_border']}">
+            <div class="flex flex-wrap justify-between items-baseline mb-1">
+                <h3 class="text-lg font-bold">{edu.degree}</h3>
+                <span class="text-xs opacity-60 font-medium">{edu.duration}</span>
+            </div>
+            <p class="text-sm font-medium opacity-80">{edu.institution}</p>
+            {details_html}
+        </div>
+        """
+
     skills_badges = "".join([f"<span class='text-xs font-medium px-3 py-1 rounded-full {style['badge']}'>{skill}</span>" for skill in profile.skills])
     linkedin_html = f"<a href='{profile.linkedin}' target='_blank' class='opacity-60 hover:opacity-100 font-medium transition'>LinkedIn</a>" if profile.linkedin else ""
     github_html = f"<a href='{profile.github}' target='_blank' class='opacity-60 hover:opacity-100 font-medium transition'>GitHub</a>" if profile.github else ""
@@ -127,6 +142,11 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "indigo") -> s
             <h2 class="text-2xl font-bold mb-6 tracking-tight">Professional Timeline</h2>
             <div class="space-y-4">{experience_blocks}</div>
         </section>
+
+        {f'''<section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 tracking-tight">Education</h2>
+            <div class="space-y-4">{education_blocks}</div>
+        </section>''' if profile.education else ''}
     </div>
 
     <script>
