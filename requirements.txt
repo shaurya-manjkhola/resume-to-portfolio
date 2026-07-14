@@ -2,7 +2,8 @@ pdfplumber
 python-docx
 fastapi
 uvicorn
-pydanticpdfplumber
+pydantic
+pdfplumber
 python-docx
 fastapi
 uvicorn
