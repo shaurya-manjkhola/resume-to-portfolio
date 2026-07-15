@@ -24,7 +24,7 @@
   body{margin:0;font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.5}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-  .shell{max-width:960px;margin:0 auto;padding:0 20px}
+  .shell{max-width:1040px;margin:0 auto;padding:0 20px}
   .navbar{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
   .brand{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:-.01em}
   .brand .mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--violet),var(--coral));display:grid;place-items:center;color:#fff;font-size:13px;font-family:var(--disp)}
@@ -47,54 +47,7 @@
   .head h2{font-family:var(--disp);font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px}
   .head p{font-size:14.5px;color:var(--ink-soft);margin:0}
 
-  /* ---- Theme picker: live mini previews mirror the actual rendered output ---- */
-  .theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-  @media(max-width:860px){.theme-grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:480px){.theme-grid{grid-template-columns:1fr}}
-  .theme-card{cursor:pointer;border-radius:var(--r-lg);border:1.5px solid var(--line);background:var(--surface);padding:10px;transition:border-color .15s,box-shadow .15s,transform .15s;text-align:left}
-  .theme-card:hover{transform:translateY(-2px)}
-  .theme-card.active{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-tint)}
-  .mini{border-radius:var(--r-sm);overflow:hidden;border:1px solid rgba(0,0,0,.06);margin-bottom:11px}
-  .mini-bar{height:16px;display:flex;align-items:center;gap:4px;padding:0 7px}
-  .mini-bar span{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5}
-  .mini-body{padding:12px 10px}
-  .mini-name{height:8px;width:58%;border-radius:3px;margin-bottom:6px}
-  .mini-line{height:5px;border-radius:3px;margin-bottom:5px;opacity:.55}
-  .mini-badges{display:flex;gap:4px;margin-top:8px}
-  .mini-badges span{height:9px;width:22px;border-radius:5px}
-
-  .m-aurora .mini-bar{background:#171C33;color:#8B7CF6}
-  .m-aurora .mini-body{background:#0B0E1A}
-  .m-aurora .mini-name{background:linear-gradient(100deg,#8B7CF6,#34D8B0)}
-  .m-aurora .mini-line{background:#6E6B96}
-  .m-aurora .mini-badges span{background:#171C33;border:1px solid #242A48}
-
-  .m-terminal .mini-bar{background:#121212;color:#D6FF3F}
-  .m-terminal .mini-body{background:#0A0A0A}
-  .m-terminal .mini-name{background:#D6FF3F;border-radius:2px}
-  .m-terminal .mini-line{background:#5C5C58;border-radius:2px}
-  .m-terminal .mini-badges span{background:#121212;border:1px solid #2A2A28;border-radius:2px}
-
-  .m-sunset .mini-bar{background:#FFF7F2;color:#E1573C}
-  .m-sunset .mini-body{background:#FFFFFF}
-  .m-sunset .mini-name{background:#2B2320}
-  .m-sunset .mini-line{background:#B5A89F}
-  .m-sunset .mini-badges span{background:#FFF7F2;border:1px solid #F0DED2;border-radius:100px}
-
-  .m-studio .mini-bar{background:#FAFAF8;color:#9C6B3F}
-  .m-studio .mini-body{background:#FFFFFF}
-  .m-studio .mini-name{background:#201F1C;border-radius:1px}
-  .m-studio .mini-line{background:#A6A399;border-radius:1px}
-  .m-studio .mini-badges span{background:#FAFAF8;border:1px solid #E4E1DA;border-radius:1px}
-
-  .theme-label{display:flex;align-items:center;justify-content:space-between;padding:2px 4px}
-  .theme-label b{font-family:var(--disp);font-size:13.5px;font-weight:600}
-  .theme-label .check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);flex-shrink:0}
-  .theme-card.active .check{background:var(--violet);border-color:var(--violet);position:relative}
-  .theme-card.active .check::after{content:"";position:absolute;left:4px;top:1.5px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
-  .theme-desc{font-size:11.5px;color:var(--ink-faint);padding:0 4px;margin-top:2px}
-
-  /* ---- Upload panel ---- */
+  /* ---- Step 1: Upload panel ---- */
   .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);padding:30px;box-shadow:var(--shadow);max-width:560px;margin:0 auto}
   .field-label{font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:9px;display:block}
   .drop{display:block;width:100%;border:1.5px dashed var(--line);border-radius:var(--r-md);padding:22px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
@@ -109,6 +62,29 @@
   .spin{width:26px;height:26px;border:3px solid var(--violet-tint);border-top-color:var(--violet);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .loading p{font-size:12.5px;color:var(--ink-faint);font-family:var(--mono)}
+  .error-box{display:none;max-width:560px;margin:16px auto 0;background:var(--coral-tint);border:1px solid #F2BDAB;color:#8A3018;font-size:13px;padding:14px 16px;border-radius:var(--r-md)}
+  .error-box.show{display:block}
+
+  /* ---- Step 2: compare all themes ---- */
+  #compareSection{display:none}
+  #compareSection.show{display:block}
+  .compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:760px){.compare-grid{grid-template-columns:1fr}}
+  .compare-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+  .compare-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line)}
+  .compare-head b{font-family:var(--disp);font-size:14px;font-weight:600}
+  .compare-head span{font-size:11.5px;color:var(--ink-faint)}
+  .compare-frame-wrap{position:relative;height:340px;overflow:hidden;background:var(--paper)}
+  .compare-frame-wrap iframe{position:absolute;top:0;left:0;width:250%;height:850px;border:none;transform:scale(0.4);transform-origin:top left;pointer-events:none}
+  .compare-skel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-faint);font-family:var(--mono)}
+  .compare-actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+  .compare-actions button{flex:1;font-size:12.5px;font-weight:600;font-family:var(--disp);border-radius:8px;padding:10px;cursor:pointer;border:1px solid var(--line);background:var(--surface2,var(--paper));transition:transform .12s}
+  .compare-actions button:hover{transform:translateY(-1px)}
+  .compare-actions button.primary{background:var(--violet);color:#fff;border-color:var(--violet)}
+  .share-result{display:none;font-size:11.5px;color:var(--ink-soft);padding:0 16px 14px;word-break:break-all}
+  .share-result.show{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .share-result a{color:var(--violet-deep);font-weight:600;text-decoration:none}
+  .share-result button{flex-shrink:0;font-size:11px;font-weight:600;border:1px solid var(--line);background:var(--surface);padding:4px 9px;border-radius:6px;cursor:pointer}
 
   /* ---- How it works ---- */
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -131,102 +107,48 @@
   <div class="hero">
     <span class="eyebrow"><span class="dot"></span> AI portfolio agent</span>
     <h1>Turn your resume into<br><em>proof of work</em></h1>
-    <p class="sub">Upload a resume — we extract the real story inside it and hand back a complete, responsive portfolio site.</p>
+    <p class="sub">Upload a resume once — we extract the real story inside it, then show you every template built from that same content.</p>
     <a href="#build" class="cta">Upload your resume
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
     </a>
   </div>
 
-  <section>
+  <section id="build">
     <div class="head">
       <div class="kick">Step one</div>
-      <h2>Pick a look</h2>
-      <p>Every theme renders your actual content — this is what your site will look like.</p>
+      <h2>Upload your resume</h2>
+      <p>PDF or DOCX. We'll parse it and write your story once, then let you compare every look.</p>
     </div>
-    <form action="/api/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
-      <input type="hidden" name="theme" id="selectedTheme" value="aurora">
-      <div class="theme-grid">
 
-        <div class="theme-card active m-aurora" onclick="selectTheme('aurora', this)">
-          <div class="mini">
-            <div class="mini-bar"><span></span><span></span><span></span></div>
-            <div class="mini-body">
-              <div class="mini-name"></div>
-              <div class="mini-line" style="width:85%"></div>
-              <div class="mini-line" style="width:60%"></div>
-              <div class="mini-badges"><span></span><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="theme-label"><b>Aurora</b><span class="check"></span></div>
-          <div class="theme-desc">Dark, gradient, built to impress.</div>
-        </div>
-
-        <div class="theme-card m-terminal" onclick="selectTheme('terminal', this)">
-          <div class="mini">
-            <div class="mini-bar"><span></span><span></span><span></span></div>
-            <div class="mini-body">
-              <div class="mini-name"></div>
-              <div class="mini-line" style="width:85%"></div>
-              <div class="mini-line" style="width:60%"></div>
-              <div class="mini-badges"><span></span><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="theme-label"><b>Terminal</b><span class="check"></span></div>
-          <div class="theme-desc">Dark, monospace, dev-first.</div>
-        </div>
-
-        <div class="theme-card m-sunset" onclick="selectTheme('sunset', this)">
-          <div class="mini">
-            <div class="mini-bar"><span></span><span></span><span></span></div>
-            <div class="mini-body">
-              <div class="mini-name"></div>
-              <div class="mini-line" style="width:85%"></div>
-              <div class="mini-line" style="width:60%"></div>
-              <div class="mini-badges"><span></span><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="theme-label"><b>Sunset</b><span class="check"></span></div>
-          <div class="theme-desc">Light, warm, editorial.</div>
-        </div>
-
-        <div class="theme-card m-studio" onclick="selectTheme('studio', this)">
-          <div class="mini">
-            <div class="mini-bar"><span></span><span></span><span></span></div>
-            <div class="mini-body">
-              <div class="mini-name"></div>
-              <div class="mini-line" style="width:85%"></div>
-              <div class="mini-line" style="width:60%"></div>
-              <div class="mini-badges"><span></span><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="theme-label"><b>Studio</b><span class="check"></span></div>
-          <div class="theme-desc">Light, muted, serif-led.</div>
-        </div>
-
+    <div class="panel">
+      <label class="field-label">Your resume</label>
+      <label class="drop">
+        <input type="file" accept=".pdf,.docx" required id="fileInput">
+        <div style="font-size:14px;color:var(--ink-soft)">Drop a PDF or DOCX, or click to browse</div>
+        <div class="fname" id="fname"></div>
+      </label>
+      <button type="button" id="submitBtn" class="submit">Generate my portfolio</button>
+      <div class="loading" id="loadingState">
+        <div class="spin"></div>
+        <p id="loadingText">Writing your story…</p>
       </div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </section>
 
-      <div id="build" style="margin-top:36px">
-        <div class="panel">
-          <label class="field-label">Your resume</label>
-          <label class="drop">
-            <input type="file" name="file" accept=".pdf,.docx" required id="fileInput">
-            <div style="font-size:14px;color:var(--ink-soft)">Drop a PDF or DOCX, or click to browse</div>
-            <div class="fname" id="fname"></div>
-          </label>
-          <button type="submit" id="submitBtn" class="submit">Build my portfolio</button>
-          <div class="loading" id="loadingState">
-            <div class="spin"></div>
-            <p>Writing your story and generating the site…</p>
-          </div>
-        </div>
-      </div>
-    </form>
+  <section id="compareSection">
+    <div class="head">
+      <div class="kick">Step two</div>
+      <h2>Compare every template</h2>
+      <p>All four rendered from your actual resume — open or download the one you like.</p>
+    </div>
+    <div class="compare-grid" id="compareGrid"></div>
   </section>
 
   <section>
     <div class="head">
       <div class="kick">How it works</div>
-      <h2>Three steps, one site</h2>
+      <h2>Two steps, four looks</h2>
     </div>
     <div class="steps">
       <div class="step">
@@ -237,12 +159,12 @@
       <div class="step">
         <div class="num">02</div>
         <h3>The agent writes your story</h3>
-        <p>Thin bullet points become a real narrative, without inventing anything that isn't yours.</p>
+        <p>Thin bullet points become a real narrative, without inventing anything that isn't yours. This runs once.</p>
       </div>
       <div class="step">
         <div class="num">03</div>
-        <h3>Get a site worth sharing</h3>
-        <p>A complete, responsive portfolio — ready to send in an email or drop into an application.</p>
+        <h3>Pick your favorite look</h3>
+        <p>All four templates render from that same story — compare them side by side and download the one you want.</p>
       </div>
     </div>
   </section>
@@ -251,21 +173,161 @@
 </div>
 
 <script>
-  function selectTheme(themeName, element) {
-    document.getElementById("selectedTheme").value = themeName;
-    document.querySelectorAll('.theme-card').forEach(card => card.classList.remove('active'));
-    element.classList.add('active');
-  }
+  const THEMES = [
+    { key: "aurora",   label: "Aurora",   desc: "Dark, gradient, built to impress." },
+    { key: "terminal", label: "Terminal", desc: "Dark, monospace, dev-first." },
+    { key: "sunset",   label: "Sunset",   desc: "Light, warm, editorial." },
+    { key: "studio",   label: "Studio",   desc: "Light, muted, serif-led." }
+  ];
 
-  document.getElementById("fileInput").addEventListener("change", function(e) {
+  const fileInput   = document.getElementById("fileInput");
+  const submitBtn   = document.getElementById("submitBtn");
+  const loadingEl   = document.getElementById("loadingState");
+  const loadingText = document.getElementById("loadingText");
+  const errorBox    = document.getElementById("errorBox");
+  const compareSec  = document.getElementById("compareSection");
+  const compareGrid = document.getElementById("compareGrid");
+
+  fileInput.addEventListener("change", (e) => {
     const f = e.target.files[0];
     document.getElementById("fname").textContent = f ? f.name : "";
   });
 
-  document.getElementById("uploadForm").addEventListener("submit", function() {
-    document.getElementById("submitBtn").disabled = true;
-    document.getElementById("submitBtn").textContent = "Building…";
-    document.getElementById("loadingState").classList.add("show");
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.classList.add("show");
+  }
+
+  function buildCompareCards() {
+    compareGrid.innerHTML = "";
+    THEMES.forEach(theme => {
+      const card = document.createElement("div");
+      card.className = "compare-card";
+      card.innerHTML = `
+        <div class="compare-head">
+          <b>${theme.label}</b>
+          <span>${theme.desc}</span>
+        </div>
+        <div class="compare-frame-wrap" id="wrap-${theme.key}">
+          <div class="compare-skel">Rendering…</div>
+        </div>
+        <div class="compare-actions">
+          <button data-key="${theme.key}" class="open-btn">Open full size</button>
+          <button data-key="${theme.key}" class="download-btn">Download site</button>
+          <button data-key="${theme.key}" class="primary share-btn">Get shareable link</button>
+        </div>
+        <div class="share-result" id="share-${theme.key}"></div>
+      `;
+      compareGrid.appendChild(card);
+    });
+
+    compareGrid.querySelectorAll(".open-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const html = window._renderedHtml[btn.dataset.key];
+        if (!html) return;
+        const blob = new Blob([html], { type: "text/html" });
+        window.open(URL.createObjectURL(blob), "_blank");
+      });
+    });
+    compareGrid.querySelectorAll(".download-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const html = window._renderedHtml[btn.dataset.key];
+        if (!html) return;
+        const blob = new Blob([html], { type: "text/html" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `portfolio-${btn.dataset.key}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    });
+    compareGrid.querySelectorAll(".share-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const key = btn.dataset.key;
+        const resultEl = document.getElementById(`share-${key}`);
+        btn.disabled = true;
+        btn.textContent = "Saving…";
+        try {
+          const form = new FormData();
+          form.append("theme", key);
+          form.append("profile", window._profileJson);
+          const res = await fetch("/api/finalize", { method: "POST", body: form });
+          if (!res.ok) throw new Error("Couldn't create a shareable link.");
+          const data = await res.json();
+          const fullUrl = window.location.origin + data.url;
+          resultEl.innerHTML = `<a href="${fullUrl}" target="_blank">${fullUrl}</a><button type="button">Copy</button>`;
+          resultEl.classList.add("show");
+          resultEl.querySelector("button").addEventListener("click", () => {
+            navigator.clipboard.writeText(fullUrl).catch(() => {});
+            resultEl.querySelector("button").textContent = "Copied";
+          });
+          btn.textContent = "Link ready ✓";
+        } catch (e) {
+          showError(e.message || "Couldn't create a shareable link.");
+          btn.textContent = "Get shareable link";
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function renderTheme(themeKey, profileJson) {
+    const form = new FormData();
+    form.append("theme", themeKey);
+    form.append("profile", profileJson);
+    const res = await fetch("/api/render", { method: "POST", body: form });
+    if (!res.ok) throw new Error(`Rendering ${themeKey} failed`);
+    const html = await res.text();
+    window._renderedHtml[themeKey] = html;
+
+    const wrap = document.getElementById(`wrap-${themeKey}`);
+    wrap.innerHTML = "";
+    const iframe = document.createElement("iframe");
+    iframe.srcdoc = html;
+    wrap.appendChild(iframe);
+  }
+
+  submitBtn.addEventListener("click", async () => {
+    errorBox.classList.remove("show");
+    const file = fileInput.files[0];
+    if (!file) { showError("Choose a resume file first."); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Working…";
+    loadingText.textContent = "Reading your resume and writing your story…";
+    loadingEl.classList.add("show");
+    compareSec.classList.remove("show");
+
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/parse", { method: "POST", body: form });
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        throw new Error(detail.detail || "Couldn't process that resume.");
+      }
+      const profile = await res.json();
+      const profileJson = JSON.stringify(profile);
+      window._profileJson = profileJson;
+
+      window._renderedHtml = {};
+      compareSec.classList.add("show");
+      buildCompareCards();
+      loadingText.textContent = "Rendering all four templates…";
+
+      await Promise.all(THEMES.map(t => renderTheme(t.key, profileJson)));
+
+      compareSec.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    } catch (err) {
+      showError(err.message || "Something went wrong. Try again.");
+    } finally {
+      loadingEl.classList.remove("show");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Generate my portfolio";
+    }
   });
 </script>
 </body>

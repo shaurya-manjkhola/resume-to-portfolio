@@ -136,6 +136,35 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
         </div>
         """
 
+    # ---- Certifications (only rendered when present on the resume) ----
+    certification_blocks = ""
+    for cert in profile.certifications:
+        date_html = f'<span class="meta">{cert.date}</span>' if cert.date else ""
+        certification_blocks += f"""
+        <div class="timeline-item">
+            <div class="timeline-row">
+                <h3>{cert.name}</h3>
+                {date_html}
+            </div>
+            <p class="sub">{cert.issuer}</p>
+        </div>
+        """
+
+    # ---- Volunteer work (only rendered when present on the resume) ----
+    volunteer_blocks = ""
+    for vol in profile.volunteer_work:
+        desc_html = f'<p class="edu-detail">{vol.description}</p>' if vol.description else ""
+        volunteer_blocks += f"""
+        <div class="timeline-item">
+            <div class="timeline-row">
+                <h3>{vol.role}</h3>
+                <span class="meta">{vol.duration}</span>
+            </div>
+            <p class="sub">{vol.organization}</p>
+            {desc_html}
+        </div>
+        """
+
     linkedin_html = f'<a href="{profile.linkedin}" target="_blank" class="link">LinkedIn</a>' if profile.linkedin else ""
     github_html = f'<a href="{profile.github}" target="_blank" class="link">GitHub</a>' if profile.github else ""
 
@@ -200,6 +229,22 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
         <div class="timeline">{education_blocks}</div>
     </section>
     """ if profile.education else ""
+
+    certifications_section = f"""
+    <section class="block">
+        {eyebrow(5, "Certifications")}
+        <h2>Certifications</h2>
+        <div class="timeline">{certification_blocks}</div>
+    </section>
+    """ if profile.certifications else ""
+
+    volunteer_section = f"""
+    <section class="block">
+        {eyebrow(6, "Volunteer work")}
+        <h2>Volunteer work</h2>
+        <div class="timeline">{volunteer_blocks}</div>
+    </section>
+    """ if profile.volunteer_work else ""
 
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
@@ -321,6 +366,10 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     </section>
 
     {education_section}
+
+    {certifications_section}
+
+    {volunteer_section}
 
     <footer>Generated portfolio · {profile.name}</footer>
 </div>

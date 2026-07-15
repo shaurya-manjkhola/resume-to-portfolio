@@ -47,6 +47,28 @@ class EducationItem(BaseModel):
     )
 
 
+class CertificationItem(BaseModel):
+    """
+    Schema for a single certification or credential entry.
+    """
+    name: str = Field(..., description="The name of the certification or credential")
+    issuer: str = Field(..., description="The organization that issued it, e.g. 'AWS', 'Coursera'")
+    date: Optional[str] = Field(None, description="Date earned, only if stated in the resume")
+
+
+class VolunteerItem(BaseModel):
+    """
+    Schema for a single volunteer or community work entry.
+    """
+    organization: str = Field(..., description="The name of the organization")
+    role: str = Field(..., description="The role or contribution")
+    duration: str = Field(..., description="The time frame, e.g. 'Jan 2024 - Present'")
+    description: Optional[str] = Field(
+        None,
+        description="What was done, only if stated in the resume"
+    )
+
+
 class PortfolioProfile(BaseModel):
     """
     The master schema containing the fully parsed and enhanced portfolio dataset.
@@ -74,6 +96,16 @@ class PortfolioProfile(BaseModel):
     education: List[EducationItem] = Field(
         default_factory=list,
         description="Education entries such as degrees, schools, and graduation dates"
+    )
+
+    certifications: List[CertificationItem] = Field(
+        default_factory=list,
+        description="Certifications or credentials, only include if explicitly present in the resume"
+    )
+
+    volunteer_work: List[VolunteerItem] = Field(
+        default_factory=list,
+        description="Volunteer or community work entries, only include if explicitly present in the resume"
     )
 
     skills: List[str] = Field(
