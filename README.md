@@ -4,20 +4,26 @@ Upload a resume (PDF or DOCX), pick a visual theme, and get back a complete,
 responsive portfolio website — generated from the resume's content, not just
 a reformatted copy of it.
 
+**Live demo:** https://resume-to-portfolio-ht4q.onrender.com
+
 ## How it works
 
 1. **Parse** — `core/parser.py` extracts raw text from the uploaded PDF or DOCX.
 2. **Generate** — `core/generator.py` sends that text to Gemini, which structures
    it into a `PortfolioProfile` (name, headline, bio, experience, projects,
-   education, skills) and expands thin bullet points into real narrative —
-   without inventing facts that aren't in the resume.
+   education, certifications, volunteer work, skills) and expands thin bullet
+   points into real narrative, without inventing facts that aren't in the resume.
 3. **Render** — `core/renderer.py` turns the structured profile into a full
-   responsive HTML page, styled according to the theme you picked
-   (`aurora`, `terminal`, `sunset`, or `studio`).
+   responsive HTML page, styled according to the theme picked (`aurora`,
+   `terminal`, `sunset`, or `studio`).
+4. **Share** — `core/storage.py` persists the chosen profile and theme in
+   Postgres under a stable slug, so the generated site stays live at a
+   permanent link (`/p/{slug}`) instead of expiring with the session.
 
 ## Setup
 
-**Requirements:** Python 3.10+
+**Requirements:** Python 3.10+, a Postgres database (a free instance from
+[Neon](https://neon.tech) or [Supabase](https://supabase.com) works).
 
 ```bash
 git clone git@github.com:shaurya-manjkhola/resume-to-portfolio.git
@@ -31,9 +37,13 @@ Create a `.env` file in the project root:
 
 ```
 GEMINI_API_KEY=your_gemini_api_key_here
+DATABASE_URL=your_postgres_connection_string_here
 ```
 
-Get a key from [Google AI Studio](https://aistudio.google.com/apikey).
+Get a Gemini key from [Google AI Studio](https://aistudio.google.com/apikey).
+`DATABASE_URL` is the connection string your Postgres provider gives you,
+including `sslmode=require`. The `portfolios` table is created automatically
+on startup if it doesn't already exist.
 
 ## Running it
 
@@ -41,33 +51,38 @@ Get a key from [Google AI Studio](https://aistudio.google.com/apikey).
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Open **http://localhost:8000** in your browser. Pick a theme, upload a resume
-(`.pdf` or `.docx`), and submit. The generated portfolio site is returned
-directly in the browser.
+Open **http://localhost:8000**. Pick a theme, upload a resume (`.pdf` or
+`.docx`), and submit. Preview every theme against the same parsed data, then
+finalize one to get a permanent shareable link at `/p/{slug}`.
 
 ## Sample input / output
 
 - Sample input resume: `samples/test_resume.pdf`
-- To generate a sample output, run the app, upload that resume, and save the
-  resulting page (`Ctrl+S` in your browser, or use the "Download Deployable
-  Site Code" button on the generated page) as a standalone `.html` file.
+- Sample generated output: `samples/sample_output.html`
 
 ## Project structure
 
 ```
-main.py                 FastAPI app: serves the upload page, handles /api/upload
+main.py                 FastAPI app: upload page, parsing, rendering, and shareable-link routes
 core/parser.py           PDF/DOCX text extraction
 core/schema.py           Pydantic schema the LLM output is forced into
 core/generator.py        Gemini call: raw text -> structured PortfolioProfile
-core/renderer.py         Structured profile -> full HTML page (3 themes)
+core/renderer.py         Structured profile -> full HTML page (4 themes)
+core/storage.py          Postgres-backed persistence for shareable portfolio links
 templates/index.html     Upload page / theme picker UI
-samples/                 Sample resume for local testing
+samples/                 Sample resume and generated output for local testing
 ```
 
 ## Notes
 
-- Themes: **Aurora** (dark, gradient), **Terminal** (dark, monospace), **Sunset** (light, warm/editorial), **Studio** (light, muted/serif).
-- If a resume has no education section, education is simply omitted from the
-  generated site rather than shown empty.
+- Themes: **Aurora** (dark, gradient), **Terminal** (dark, monospace), **Sunset**
+  (light, warm/editorial), **Studio** (light, muted/serif).
+- If a resume has no education section, education is omitted from the
+  generated site rather than shown empty. Same applies to certifications and
+  volunteer work.
 - Generation runs Gemini with a fallback chain (`gemini-2.5-flash` →
   `gemini-1.5-flash` → `gemini-1.5-pro`) in case a model is unavailable.
+- Shareable links are stable across restarts and deploys — the profile and
+  theme are stored in Postgres, not on local disk.
+- If two people share a name, the slug gets a random numeric suffix on
+  collision rather than overwriting the earlier link.
