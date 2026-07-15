@@ -77,6 +77,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     'sunset' and 'studio' (light).
     """
     t = THEMES.get(theme, THEMES["aurora"])
+    on_accent = "#0A0A0A" if t["mode"] == "dark" else "#FFFFFF"
 
     def esc(s):
         return s if s else ""
@@ -91,12 +92,13 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
         stripe = accent_cycle[i % 2]
         tech_badges = "".join(f'<span class="badge sm">{tech}</span>' for tech in proj.tech_stack)
         github_link = (
-            f'<a href="{proj.github_url}" target="_blank" class="proj-link">Source →</a>'
+            f'<a href="{proj.github_url}" target="_blank" class="proj-link">'
+            f'<span>Source</span><span class="arrow">&rarr;</span></a>'
             if proj.github_url else ""
         )
         label = f'<span class="proj-num">{i + 1:02d}</span>' if t["numbered"] else ""
         project_blocks += f"""
-        <div class="card proj-card" style="--stripe:{stripe}">
+        <div class="card proj-card reveal" style="--stripe:{stripe};transition-delay:{(i % 4) * 60}ms">
             <div class="proj-head">{label}<h3>{proj.title}</h3></div>
             <p class="proj-desc">{proj.description}</p>
             <div class="proj-foot">
@@ -111,12 +113,12 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     for exp in profile.experience:
         highlights = "".join(f"<li>{h}</li>" for h in exp.highlights)
         experience_blocks += f"""
-        <div class="timeline-item">
+        <div class="timeline-item reveal">
             <div class="timeline-row">
                 <h3>{exp.position}</h3>
                 <span class="meta">{exp.duration}</span>
             </div>
-            <p class="sub">{exp.company} · {exp.location}</p>
+            <p class="sub">{exp.company} &middot; {exp.location}</p>
             <ul class="highlights">{highlights}</ul>
         </div>
         """
@@ -126,7 +128,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     for edu in profile.education:
         details = f'<p class="edu-detail">{edu.details}</p>' if edu.details else ""
         education_blocks += f"""
-        <div class="timeline-item">
+        <div class="timeline-item reveal">
             <div class="timeline-row">
                 <h3>{edu.degree}</h3>
                 <span class="meta">{edu.duration}</span>
@@ -141,7 +143,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     for cert in profile.certifications:
         date_html = f'<span class="meta">{cert.date}</span>' if cert.date else ""
         certification_blocks += f"""
-        <div class="timeline-item">
+        <div class="timeline-item reveal">
             <div class="timeline-row">
                 <h3>{cert.name}</h3>
                 {date_html}
@@ -155,7 +157,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     for vol in profile.volunteer_work:
         desc_html = f'<p class="edu-detail">{vol.description}</p>' if vol.description else ""
         volunteer_blocks += f"""
-        <div class="timeline-item">
+        <div class="timeline-item reveal">
             <div class="timeline-row">
                 <h3>{vol.role}</h3>
                 <span class="meta">{vol.duration}</span>
@@ -171,8 +173,8 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     # ---- Section eyebrow helper (numbered vs plain) ----
     def eyebrow(idx, text):
         if t["numbered"]:
-            return f'<div class="eyebrow"><span class="idx">{idx:02d}</span> — {text.upper()}</div>'
-        return f'<div class="eyebrow">{text.upper()}</div>'
+            return f'<div class="eyebrow"><span class="idx">{idx:02d}</span> &mdash; {text.upper()}</div>'
+        return f'<div class="eyebrow"><span class="eyebrow-dot"></span>{text.upper()}</div>'
 
     # ---- Hero ----
     name_html = (
@@ -183,10 +185,11 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     )
 
     if t["split_hero"]:
-        top_skills = " · ".join(profile.skills[:3]) if profile.skills else ""
+        top_skills = " &middot; ".join(profile.skills[:3]) if profile.skills else ""
         first_edu = profile.education[0] if profile.education else None
         hero_html = f"""
-        <section class="hero split">
+        <section class="hero split reveal">
+            <div class="hero-glow"></div>
             <div class="hero-main">
                 {eyebrow(0, "Portfolio")}
                 <h1>{name_html}</h1>
@@ -208,7 +211,8 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
         """
     else:
         hero_html = f"""
-        <section class="hero">
+        <section class="hero reveal">
+            <div class="hero-glow"></div>
             {avatar_html}
             {eyebrow(0, "Portfolio")}
             <h1>{name_html}</h1>
@@ -223,7 +227,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
         """
 
     education_section = f"""
-    <section class="block">
+    <section class="block reveal">
         {eyebrow(4, "Education")}
         <h2>Education</h2>
         <div class="timeline">{education_blocks}</div>
@@ -231,7 +235,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     """ if profile.education else ""
 
     certifications_section = f"""
-    <section class="block">
+    <section class="block reveal">
         {eyebrow(5, "Certifications")}
         <h2>Certifications</h2>
         <div class="timeline">{certification_blocks}</div>
@@ -239,7 +243,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     """ if profile.certifications else ""
 
     volunteer_section = f"""
-    <section class="block">
+    <section class="block reveal">
         {eyebrow(6, "Volunteer work")}
         <h2>Volunteer work</h2>
         <div class="timeline">{volunteer_blocks}</div>
@@ -261,68 +265,127 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
     --line:{t['line']}; --accent:{t['accent']}; --accent2:{t['accent2']};
     --radius:{t['radius']};
     --font-disp:{t['font_disp']}; --font-body:{t['font_body']};
+    --on-accent:{on_accent};
+    --glow: color-mix(in srgb, var(--accent) 32%, transparent);
+    --glow-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+    --tint: color-mix(in srgb, var(--accent) 10%, var(--surface));
+    --ease: cubic-bezier(.16,.84,.44,1);
   }}
   *{{box-sizing:border-box}}
-  body{{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.6}}
+  html{{scroll-behavior:smooth}}
+  body{{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.6;overflow-x:hidden;
+    background-image:radial-gradient(color-mix(in srgb, var(--line) 70%, transparent) 1px, transparent 1px);
+    background-size:28px 28px;}}
+  ::selection{{background:var(--accent);color:var(--on-accent)}}
   h1,h2,h3{{font-family:var(--font-disp);letter-spacing:-.02em;margin:0}}
   a{{color:inherit}}
-  .wrap{{max-width:880px;margin:0 auto;padding:0 24px}}
+  .wrap{{max-width:880px;margin:0 auto;padding:0 24px;position:relative}}
 
-  #exportHUD{{position:sticky;top:0;z-index:50;background:var(--surface2);border-bottom:1px solid var(--line);
+  .reveal{{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}}
+  .reveal.in-view{{opacity:1;transform:none}}
+
+  #exportHUD{{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--surface2) 88%, transparent);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
     display:flex;align-items:center;justify-content:space-between;padding:12px 24px;font-family:var(--font-body)}}
   #exportHUD .status{{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft)}}
-  #exportHUD .dot{{width:7px;height:7px;border-radius:50%;background:var(--accent)}}
+  #exportHUD .dot{{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--glow-soft);
+    animation:pulse 2.2s ease-in-out infinite}}
+  @keyframes pulse{{0%,100%{{box-shadow:0 0 0 3px var(--glow-soft)}}50%{{box-shadow:0 0 0 6px var(--glow-soft)}}}}
   #exportHUD button{{font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface);
-    color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;margin-left:8px;font-family:var(--font-body)}}
-  #exportHUD button.primary{{background:var(--accent);color:{"#0A0A0A" if t['mode']=='dark' else '#FFFFFF'};border:none}}
+    color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;margin-left:8px;font-family:var(--font-body);
+    transition:transform .2s var(--ease),border-color .2s,background .2s}}
+  #exportHUD button:hover{{transform:translateY(-1px);border-color:var(--accent)}}
+  #exportHUD button.primary{{background:var(--accent);color:var(--on-accent);border:none;
+    box-shadow:0 4px 14px -4px var(--glow)}}
+  #exportHUD button.primary:hover{{box-shadow:0 6px 20px -4px var(--glow);filter:brightness(1.05)}}
 
-  .eyebrow{{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}}
-  .eyebrow .idx{{color:var(--ink-faint);margin-right:4px}}
+  .eyebrow{{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px}}
+  .eyebrow .idx{{color:var(--ink-faint);margin-right:2px}}
+  .eyebrow-dot{{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--glow-soft);
+    flex:none}}
 
-  .hero{{padding:64px 0 40px}}
-  .hero h1{{font-size:42px;font-weight:700;margin-bottom:10px}}
-  .hero .grad{{background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}}
+  .hero{{padding:72px 0 44px;position:relative;overflow:hidden}}
+  .hero-glow{{position:absolute;top:-140px;right:-120px;width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle, var(--accent) 0%, transparent 70%);opacity:.18;filter:blur(50px);
+    pointer-events:none;z-index:0}}
+  .hero > *:not(.hero-glow){{position:relative;z-index:1}}
+  .hero h1{{font-size:clamp(32px,5vw,44px);font-weight:700;margin-bottom:10px}}
+  .hero .grad{{background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;
+    background-clip:text;color:transparent;background-size:200% auto;animation:sheen 6s ease-in-out infinite}}
+  @keyframes sheen{{0%,100%{{background-position:0% 50%}}50%{{background-position:100% 50%}}}}
   .headline{{font-size:18px;color:var(--ink-soft);font-weight:500;margin:0 0 16px}}
   .bio{{font-size:15px;color:var(--ink-soft);max-width:560px;margin:0 0 24px}}
   .cta-row{{display:flex;gap:18px;align-items:center;flex-wrap:wrap}}
-  .btn-primary{{background:var(--accent);color:{"#0A0A0A" if t['mode']=='dark' else '#FFFFFF'};font-weight:600;
-    padding:12px 22px;border-radius:calc(var(--radius) - 4px);text-decoration:none;font-size:14px}}
-  .link{{font-size:14px;font-weight:500;color:var(--ink-soft);text-decoration:none}}
+  .btn-primary{{background:var(--accent);color:var(--on-accent);font-weight:600;
+    padding:12px 22px;border-radius:calc(var(--radius) - 4px);text-decoration:none;font-size:14px;
+    display:inline-flex;align-items:center;box-shadow:0 4px 14px -4px var(--glow);
+    transition:transform .25s var(--ease),box-shadow .25s var(--ease),filter .25s}}
+  .btn-primary:hover{{transform:translateY(-3px);box-shadow:0 10px 24px -6px var(--glow);filter:brightness(1.05)}}
+  .link{{font-size:14px;font-weight:500;color:var(--ink-soft);text-decoration:none;position:relative;padding-bottom:2px}}
+  .link::after{{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--accent);
+    transition:width .25s var(--ease)}}
   .link:hover{{color:var(--accent)}}
-  .avatar{{width:56px;height:56px;border-radius:50%;background:var(--accent);color:{"#0A0A0A" if t['mode']=='dark' else '#FFFFFF'};
-    display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-weight:600;font-size:18px;margin-bottom:18px}}
+  .link:hover::after{{width:100%}}
+  .avatar{{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);
+    font-weight:600;font-size:18px;margin-bottom:18px;box-shadow:0 6px 20px -6px var(--glow);
+    transition:transform .3s var(--ease)}}
+  .avatar:hover{{transform:rotate(-6deg) scale(1.05)}}
 
   .hero.split{{display:grid;grid-template-columns:1.5fr 1fr;gap:32px;align-items:start}}
   @media(max-width:720px){{.hero.split{{grid-template-columns:1fr}}}}
-  .facts-card{{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:10px}}
-  .fact{{display:flex;flex-direction:column;gap:2px;padding:12px 0;border-bottom:1px solid var(--line)}}
+  .facts-card{{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+    margin-top:10px;transition:border-color .3s var(--ease),box-shadow .3s var(--ease),transform .3s var(--ease)}}
+  .facts-card:hover{{border-color:var(--accent);box-shadow:0 14px 30px -12px var(--glow);transform:translateY(-3px)}}
+  .fact{{display:flex;flex-direction:column;gap:2px;padding:12px 6px;border-bottom:1px solid var(--line);
+    border-radius:8px;margin:0 -6px;transition:background .25s var(--ease),padding-left .25s var(--ease)}}
+  .fact:hover{{background:var(--tint);padding-left:12px}}
   .fact:last-child{{border-bottom:none;padding-bottom:0}}
   .fact-label{{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint)}}
   .fact-value{{font-size:14px;font-weight:600}}
 
-  .block{{padding:36px 0}}
-  .block h2{{font-size:24px;font-weight:700;margin-bottom:18px}}
+  .block{{padding:40px 0}}
+  .block h2{{font-size:clamp(22px,3vw,26px);font-weight:700;margin-bottom:18px}}
 
   .badge-row{{display:flex;flex-wrap:wrap;gap:8px}}
   .badge{{font-size:12px;font-weight:500;padding:6px 13px;border-radius:100px;background:var(--surface2);
-    border:1px solid var(--line);color:var(--ink-soft)}}
+    border:1px solid var(--line);color:var(--ink-soft);transition:transform .2s var(--ease),background .2s,
+    border-color .2s,color .2s;cursor:default}}
+  .badge:hover{{transform:translateY(-2px);background:var(--tint);border-color:var(--accent);color:var(--ink)}}
   .badge.sm{{padding:3px 9px;font-size:11px}}
 
   .grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px}}
   @media(max-width:640px){{.grid{{grid-template-columns:1fr}}}}
   .card{{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;
-    transition:transform .15s,border-color .15s}}
-  .card:hover{{transform:translateY(-2px);border-color:var(--accent)}}
+    position:relative;overflow:hidden;
+    transition:transform .35s var(--ease),border-color .35s var(--ease),box-shadow .35s var(--ease)}}
+  .card::before{{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;
+    background:linear-gradient(135deg,var(--accent),transparent 60%);opacity:0;transition:opacity .35s var(--ease);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}}
+  .card:hover{{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 20px 40px -20px var(--glow)}}
+  .card:hover::before{{opacity:1}}
   .proj-card{{border-top:3px solid var(--stripe);display:flex;flex-direction:column;justify-content:space-between}}
   .proj-head{{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}}
   .proj-num{{font-size:12px;color:var(--ink-faint);font-weight:600}}
   .proj-head h3{{font-size:17px;font-weight:600}}
   .proj-desc{{font-size:13.5px;color:var(--ink-soft);margin-bottom:16px}}
   .proj-foot{{display:flex;flex-direction:column;gap:10px}}
-  .proj-link{{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none}}
+  .proj-link{{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;display:inline-flex;
+    align-items:center;gap:5px}}
+  .proj-link .arrow{{display:inline-block;transition:transform .25s var(--ease)}}
+  .proj-link:hover .arrow{{transform:translateX(4px)}}
 
-  .timeline{{display:flex;flex-direction:column;gap:26px}}
-  .timeline-item{{border-left:2px solid var(--accent);padding-left:18px}}
+  .timeline{{display:flex;flex-direction:column;gap:8px}}
+  .timeline-item{{position:relative;border-left:2px solid var(--line);padding:14px 16px 14px 22px;
+    border-radius:0 10px 10px 0;transition:border-color .3s var(--ease),background .3s var(--ease)}}
+  .timeline-item::before{{content:'';position:absolute;left:-7px;top:18px;width:12px;height:12px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--ink-faint);transition:border-color .3s var(--ease),
+    background .3s var(--ease),box-shadow .3s var(--ease)}}
+  .timeline-item:hover{{border-left-color:var(--accent);background:var(--tint)}}
+  .timeline-item:hover::before{{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 4px var(--glow-soft)}}
   .timeline-row{{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}}
   .timeline-row h3{{font-size:17px;font-weight:600}}
   .meta{{font-size:12px;color:var(--ink-faint);font-weight:500;white-space:nowrap}}
@@ -331,13 +394,14 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
   .highlights li{{margin-bottom:5px}}
   .edu-detail{{font-size:12.5px;color:var(--ink-faint);font-style:italic;margin:4px 0 0}}
 
-  footer{{padding:40px 0 60px;font-size:12px;color:var(--ink-faint);border-top:1px solid var(--line);margin-top:20px;text-align:center}}
+  footer{{padding:44px 0 60px;font-size:12px;color:var(--ink-faint);border-top:1px solid var(--line);margin-top:20px;
+    text-align:center}}
 </style>
 </head>
 <body>
 
 <div id="exportHUD">
-    <div class="status"><span class="dot"></span>Live preview · {t['label']} theme</div>
+    <div class="status"><span class="dot"></span>Live preview &middot; {t['label']} theme</div>
     <div>
         <button onclick="window.print()">Print PDF</button>
         <button class="primary" onclick="exportSourceFile()">Download site</button>
@@ -347,19 +411,19 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
 <div class="wrap">
     {hero_html}
 
-    <section class="block">
+    <section class="block reveal">
         {eyebrow(1, "Skills")}
         <h2>Technical skills</h2>
         <div class="badge-row">{skills_html}</div>
     </section>
 
-    <section class="block">
+    <section class="block reveal">
         {eyebrow(2, "Selected work")}
         <h2>Projects</h2>
         <div class="grid">{project_blocks}</div>
     </section>
 
-    <section class="block">
+    <section class="block reveal">
         {eyebrow(3, "Experience")}
         <h2>Where I've worked</h2>
         <div class="timeline">{experience_blocks}</div>
@@ -371,7 +435,7 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
 
     {volunteer_section}
 
-    <footer>Generated portfolio · {profile.name}</footer>
+    <footer>Generated portfolio &middot; {profile.name}</footer>
 </div>
 
 <script>
@@ -388,6 +452,23 @@ def render_portfolio_html(profile: PortfolioProfile, theme: str = "aurora") -> s
         document.body.removeChild(link);
         document.body.insertBefore(hud, document.body.firstChild);
     }}
+
+    (function() {{
+        const items = document.querySelectorAll(".reveal");
+        if (!("IntersectionObserver" in window) || !items.length) {{
+            items.forEach(el => el.classList.add("in-view"));
+            return;
+        }}
+        const io = new IntersectionObserver((entries) => {{
+            entries.forEach(entry => {{
+                if (entry.isIntersecting) {{
+                    entry.target.classList.add("in-view");
+                    io.unobserve(entry.target);
+                }}
+            }});
+        }}, {{ threshold: 0.12, rootMargin: "0px 0px -40px 0px" }});
+        items.forEach(el => io.observe(el));
+    }})();
 </script>
 </body>
 </html>
