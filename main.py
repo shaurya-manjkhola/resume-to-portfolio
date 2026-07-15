@@ -9,16 +9,26 @@ from core.parser import get_raw_resume_text
 from core.generator import generate_portfolio_data
 from core.renderer import render_portfolio_html
 from core.schema import PortfolioProfile
-from core.storage import generate_slug, save_portfolio, load_portfolio
+from core.storage import generate_slug, save_portfolio, load_portfolio, init_db
 
 app = FastAPI(
     title="Resume to Portfolio Agent API",
     description="Backend engine that transforms raw resumes into structured portfolio profiles with multi-theme support.",
-    version="3.0.0"
+    version="3.1.0"
 )
 
 UPLOAD_DIR = "temp_uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+@app.on_event("startup")
+def on_startup():
+    """
+    Creates the portfolios table if it doesn't already exist. Safe to
+    run on every boot -- CREATE TABLE IF NOT EXISTS is a no-op once
+    the table's there.
+    """
+    init_db()
 
 
 @app.get("/")
@@ -108,17 +118,19 @@ async def finalize_portfolio(
         slug = generate_slug(structured_portfolio.name)
         save_portfolio(slug, structured_portfolio.model_dump(), theme)
 
-        return JSONResponse(content={"slug": slug, "url": f"/{slug}"})
+        return JSONResponse(content={"slug": slug, "url": f"/p/{slug}"})
 
     except Exception as e:
         print(f"[WEB ERROR] {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/{slug}", response_class=HTMLResponse)
+@app.get("/p/{slug}", response_class=HTMLResponse)
 async def view_shared_portfolio(slug: str):
     """
     Serves a previously generated portfolio at its stable, shareable link.
+    Namespaced under /p/ so it can't shadow other routes or intercept
+    unrelated requests like /favicon.ico.
     Re-renders from the stored structured profile (rather than storing raw
     HTML) so shared links stay in sync with whatever the renderer does
     at request time.
